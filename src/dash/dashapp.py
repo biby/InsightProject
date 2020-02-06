@@ -32,10 +32,11 @@ a = zipcodedf2.columns
 a = ['ZipCode']+ list(a)[1:]
 zipcodedf2.columns = a
 zipcodedf = zipcodedf.join(zipcodedf2.set_index('ZipCode'), on='ZipCode', how='right').fillna(0)
-print(zipcodedf)
 fig = px.scatter_mapbox(zipcodedf, lat="Latitude", lon="Longitude", hover_name="ZipCode", hover_data=[],color_discrete_sequence=["blue"], zoom=3, height=500)
 fig.update_layout(mapbox_style="open-street-map")
 fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
+dropdownOptions = [{'label':str(a),'value':str(a)} for a in zipcodedf['ZipCode']]
+
 
 def timeslicequery(date1, date2):
     return "(select * from cloudcoverage where timestamp > '"+date1.strftime("%Y-%m-%d %H:%M:%S")+"' and timestamp < '"+date2.strftime("%Y-%m-%d %H:%M:%S")+"')"
@@ -87,7 +88,7 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         date='2020-01-16'
         )])
     ,html.Div(style={'backgroundColor': colors['background']},
-        children=[ dcc.Input(id='zipcodeInput',value='94025',type='text'),dcc.Graph(id='zipcodeGraph'),dcc.Graph(id='zipcodeElecGraph')])
+        children=[ dcc.Dropdown(id='zipcodeInput',value='94025',options=dropdownOptions),dcc.Graph(id='zipcodeGraph'),dcc.Graph(id='zipcodeElecGraph')])
         ]
 )
 
@@ -113,7 +114,7 @@ def updatemap(date,value):
         dtdate =datetime.datetime.strptime(date,"%Y-%m-%d")
         dtdate = datetime.date(dtdate.year,dtdate.month,dtdate.day)
         joindf = zipcodedf.join(timeslicedf.set_index('zipcode'), on='ZipCode', how='inner')
-        joindf['solarElectricity']=  joindf.apply(lambda row: (1-row['cloudcoverage'])*row['Efficiency']*row['Size']*solarirradiance.currentRadiation(dtdate,  row['Latitude'],  12, (row['Latitude']*.76+3.1)), axis=1)
+        joindf['solarElectricity']=  joindf.apply(lambda row: (1-row['cloudcoverage'])*row['Size']*solarirradiance.currentRadiation(dtdate,  row['Latitude'],  12, (row['Latitude']*.76+3.1)), axis=1)#*row['Efficiency']
     
     if value == 'CC':
         shadecolors =  joindf['cloudcoverage']
@@ -152,7 +153,7 @@ def updateZipcodeGraph(input_value):
     if not(len(input_value)==5 and RepresentsInt(input_value)):
         raise PreventUpdate
     
-    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = '%s' order by timestamp"
+    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = %s order by timestamp"
     param = (input_value,)
     sqldf = pd.read_sql(query,con=engine,params=param)
     #sqldf['cloudcoverage'] = sqldf['cloudcoverage'].apply(lambda x:((x-.07)/.75)**(1/3))
@@ -175,19 +176,18 @@ def updateZipcodeElectGraph(input_value):
     if not(len(input_value)==5 and RepresentsInt(input_value)):
         raise PreventUpdate
     
-    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = '%s' order by timestamp"
+    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = %s order by timestamp"
     param = (input_value,)
     sqldf = pd.read_sql(query,con=engine,params=param)
     ziprow = zipcodedf[zipcodedf['ZipCode']==int(input_value)]
-    eff = ziprow['Efficiency'].values[0]
+    #eff = ziprow['Efficiency'].values[0]
     size = ziprow['Size'].values[0]
-    lat = ziprow['Latitude'].values[0]
-    print(sqldf.dtypes)    
-    sqldf['solarElectricity']=  sqldf.apply(lambda row: (1-row['cloudcoverage'])*eff*size*solarirradiance.currentRadiation(numpydatetimetodate(row['timestamp']),  lat,  12, (lat*.76+3.1)), axis=1)
+    lat = ziprow['Latitude'].values[0]    
+    sqldf['solarElectricity']=  sqldf.apply(lambda row: (1-row['cloudcoverage'])*size*solarirradiance.currentRadiation(numpydatetimetodate(row['timestamp']),  lat,  12, (lat*.76+3.1)), axis=1)
     #sqldf['cloudcoverage'] = sqldf['cloudcoverage'].apply(lambda x:((x-.07)/.75)**(1/3))
     fig = px.line(sqldf, x="timestamp", y='solarElectricity', title='Electricity production for '+input_value)
     
     return fig
 if __name__=='__main__':
     host = os.environ["DASH_HOST"]
-    app.run_server(host=host, port=80)
+    app.run_server(host=host)
