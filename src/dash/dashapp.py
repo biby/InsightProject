@@ -152,10 +152,10 @@ def updateZipcodeGraph(input_value):
     if not(len(input_value)==5 and RepresentsInt(input_value)):
         raise PreventUpdate
     
-    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = '"+input_value+"' order by timestamp"
+    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = '%s' order by timestamp"
     param = (input_value,)
-    sqldf = pd.read_sql(query,con=engine)
-    sqldf['cloudcoverage'] = sqldf['cloudcoverage'].apply(lambda x:((x-.07)/.75)**(1/3))
+    sqldf = pd.read_sql(query,con=engine,params=param)
+    #sqldf['cloudcoverage'] = sqldf['cloudcoverage'].apply(lambda x:((x-.07)/.75)**(1/3))
     fig = px.line(sqldf, x="timestamp", y="cloudcoverage", title='Cloud coverage for '+input_value)
     
     return fig
@@ -175,9 +175,9 @@ def updateZipcodeElectGraph(input_value):
     if not(len(input_value)==5 and RepresentsInt(input_value)):
         raise PreventUpdate
     
-    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = '"+input_value+"' order by timestamp"
+    query= "select timestamp,cloudcoverage from cloudcoverage where zipcode = '%s' order by timestamp"
     param = (input_value,)
-    sqldf = pd.read_sql(query,con=engine)
+    sqldf = pd.read_sql(query,con=engine,params=param)
     ziprow = zipcodedf[zipcodedf['ZipCode']==int(input_value)]
     eff = ziprow['Efficiency'].values[0]
     size = ziprow['Size'].values[0]
@@ -189,4 +189,5 @@ def updateZipcodeElectGraph(input_value):
     
     return fig
 if __name__=='__main__':
-    app.run_server(debug=True)
+    host = os.environ["DASH_HOST"]
+    app.run_server(host=host, port=80)
