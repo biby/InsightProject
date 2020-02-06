@@ -19,9 +19,13 @@ class ImageProcessor:
         """
             Create a ThreadPool of nbThread for further imag download
         """
-        self.tpe = ThreadPoolExecutor(nbThread)
-        self.futures = []
         self.zipsearch = zipsearch
+        self.s3 = boto3.client('s3')
+        if nbThread >1:
+            self.tpe = ThreadPoolExecutor(nbThread)
+            self.futures = []
+        self.zipsearch = zipsearch
+        self.s3 = boto3.client('s3')
 
     def getImage(self,s3Bucket,url):
         """
@@ -29,12 +33,23 @@ class ImageProcessor:
         """
         
         start_time = time.time()
-        s3 = boto3.client('s3')
-        tmp = tempfile.NamedTemporaryFile()
-        with open(tmp.name,'wb') as f:
-            s3.download_fileobj(s3Bucket, url, f)
-        img = PIL.Image.open(tmp.name)   
+        try:
+            imdownloader =  self.s3.get_object(Bucket=s3Bucket,Key=url)
+            '''
+            tmp = tempfile.NamedTemporaryFile()
+            with open(tmp.name,'wb') as f:
+                self.s3.download_fileobj(s3Bucket, url, f)
+            img = PIL.Image.open(tmp.name)
+            '''
+        except Exception as e:
+            if e.__class__.__name__ == 'NoSuchKey':
+                return None
+            else:
+                raise
+        img = PIL.Image.open(imdownloader['Body'])
+        del imdownloader
         img_arr = np.array(img)
+        del img
         print('download time: ', time.time()-start_time)
         return img_arr
 
@@ -87,6 +102,7 @@ class ImageProcessor:
         return urllist
 
     def crop(self,image,line,zp):
+        import datetime
         """
             Given an image, image metadata and a zipcode return a tuple containing:
             Id of image
@@ -101,14 +117,15 @@ class ImageProcessor:
         zipc = zipCode(zp)    
         croppedImg = img.crop([zipc.minLatitude, zipc.minLongitude, zipc.maxLatitude, zipc.maxLongitude])
         cover = croppedImg.cloudCover()
-        area = croppedImg.areaInSqMt()
+        area = float(croppedImg.areaInSqMt())
         if croppedImg.areaInPixels() ==0:
             return None
         #ID Zipcode timestamp, cover, area
         entityId = l[1]
-        timeStamp = l[2]
+        timeStamp = datetime.datetime.strptime(l[2], '%Y-%m-%d %H:%M:%S.%f')
         theoreticalcover = l[3]
         zipcode,zipcodearea = zp.split(',')[:2]
+        zipcodearea = float(zipcodearea)
         return (entityId,zipcode,timeStamp,cover.item(),area,zipcodearea)#,theoreticalcover)
     
     def processImage(self,image,line,zips):
@@ -127,14 +144,34 @@ class ImageProcessor:
         """
             processes a batch of images by threading the imagesdownload and then processing images as they arrive.
         """
-        start_time = time.time()
-        urllist = self.setUrlList(data)
-        self.startDownload(urllist)          
-        res = []
-        for future in as_completed(self.futureDownload):
-            line,zips = self.futureDownload[future]
-            image = future.result()
-            res+=self.processImage(image,line,zips)
-        print('Batch Processing Time: ', time.time()-start_time)
-        return res
-
+        if len(data)==0:
+            return []
+        elif len(data)>1:
+            start_time = time.time()
+            urllist = self.setUrlList(data)
+            self.startDownload(urllist)          
+            res = []
+            for future in as_completed(self.futureDownload):
+                line,zips = self.futureDownload[future]
+                image = future.result()
+                if image is None:
+                    continue
+                res+=self.processImage(image,line,zips)
+                del image
+            print('Batch Processing Time: ', time.time()-start_time)
+            return res
+        else:
+            start_time = time.time()
+            line = data[0]
+            minmaxlatlong = self.getMinmaxlatlong(line)
+            zips = self.intersectingZipCode(minmaxlatlong)
+            if len(zips)==0:
+                return []
+            url, bucket = self.getUrl(line)
+            image = self.getImage(bucket,url)
+            if image is None:
+                return []
+            res= self.processImage(image,line,zips)
+            print('Processing Time: ', time.time()-start_time)
+            return res
+            
