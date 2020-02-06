@@ -13,6 +13,8 @@ class satelliteImage:
         """
             Returns the ratio of vertical degree per pixel
         """
+        if self.image.shape[0]==0:
+            return 1
         return    (self.maxLatitude-self.minLatitude)/self.image.shape[0]
 
     @property
@@ -20,6 +22,8 @@ class satelliteImage:
         """
             Returns the ratio of horizontal degree per pixel
         """
+        if self.image.shape[1]==0:
+            return 1
         return    (self.maxLongitude-self.minLongitude)/self.image.shape[1]
     
     def latitudeToPixel(self,latitude):

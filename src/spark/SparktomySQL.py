@@ -22,11 +22,11 @@ class MySQLConnector:
 
     def loadImageIDInDatabase(self):
         table = 'cloudcoverage'
-        querry = '(SELECT DISTINCT id FROM '+ table +') AS id'
+        query = '(SELECT DISTINCT id FROM '+ table +') AS id'
         imageID = self.sqlContext.read.format("jdbc").options(driver=self.driver,
             url=self.url,
             user=self.user,
-            password=self.password).option('dbtable',querry).load()
+            password=self.password).option('dbtable',query).load()
         return imageID
 
 
