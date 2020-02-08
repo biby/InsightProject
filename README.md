@@ -24,14 +24,15 @@ Repository Structure
 <h1>
 AWS Setup
 </h1>
-
+[Here](setup_spark.md) is the detailled spark cluster set up 
 <h1>
 Data sets
 </h1>
 
 <p>I am using two main data sets:</p>
 <ul>
-<li>The tracking-the-sun dataset containing solar panels attached to the grid: <a href="https://emp.lbl.gov/tracking-the-sun/" >here</a></li>
+<li>The tracking-the-sun dataset containing the list of solar panels attached to the grid: <a href="https://emp.lbl.gov/tracking-the-sun/" >here</a></li>
 <li> The landsat8 dataset of satellite images (<a href="https://registry.opendata.aws/landsat-8/">here</a>). I am using specifically the Band 9 of the images.</li>
+<li> A small zipcode dataset containing latitude, longitude and area.</li>
 </ul>
 
