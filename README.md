@@ -24,7 +24,7 @@ Repository Structure
 <h1>
 AWS Setup
 </h1>
-[Here](setup_spark.md) is the detailled spark cluster set up 
+<a href="/biby/InsightProject/blob/master/setup_spark.md">Here</a> is the detailled spark cluster set up 
 <h1>
 Data sets
 </h1>
