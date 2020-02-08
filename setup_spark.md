@@ -16,8 +16,9 @@ My subnet
 
 <h1>
 Spark install
-<h1>
+</h1>
 <p> On each instance, install java 8, scala. Then  download and unzip spark 2.5.0</p>
+
 ```bash
 sudo apt update
 sudo apt-get install openjdk-8-jre-headless
