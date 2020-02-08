@@ -6,7 +6,7 @@ I followed this awsome <a href="https://blog.insightdatascience.com/simply-insta
 
 <h1>
 My subnet
-<h1>
+</h1>
 
 <p>All my instances run on a Ubuntu 18.04 server. My spark clusted has one master and 4 worker nodes with following IPs.</p>
 <ul>
