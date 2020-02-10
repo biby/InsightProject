@@ -6,13 +6,20 @@ Solar Insight
 
 
 <p>This web app allows you to get an insight of the solar electricity productions over the usa by zipcodes, as well as an realtime estimation of the current production.</p>
+<hr/>
+<img src="./screenshot.png" alt="Solar Insight">
+<hr/>
 
 <p>The user to look over the maps of the usa to see the cloud coverage and the solar electricity production at a chosen date. He can also dive into the data for specific zipcode to analyse the electricity production history.</p>
 
 <h1>
 Design.
 </h1>
-![Pipeline](pipeline.png)
+
+<hr/>
+<img src="./pipeline.png" alt="Pipeline">
+<hr/>
+
 <p>The historical data has been processed using Apache Spark. Satellite images are downloaded from a S3 database, matched to zipcode. For each zipcode-image pair, the cloud coverage over the location is extracted and then stored in a MySQL database. A web app implemented with Plotly Dash is then queriing this database to compute the electricity production.</p>
 
 <p>The realtime data is first received by Apache Pulsar, and then fetched and processed similarly as for the historical data pipeline.</p>
