@@ -43,7 +43,15 @@ class SolarPanels:
  
     def uploadZipcode(self):
         #Download and select columns
-        schema = StructType([StructField("ZCTA", IntegerType()),StructField("LandSqMt", IntegerType()),StructField("Latitude", FloatType()),StructField("Longitude", FloatType())])
+        schema = StructType([StructField("ZCTA", IntegerType()),
+StructField("LandSqMt", IntegerType()),
+StructField("WaterSqMt", IntegerType()),
+StructField("LandSqMi", FloatType()),
+StructField("WaterSqMi", FloatType()),
+StructField("Population", IntegerType()),
+StructField("Housing Units", IntegerType()),
+StructField("Latitude", FloatType()),
+StructField("Longitude", FloatType())])
         self.zipcodes = self.sqlContext.read.csv(self.zipcodeurl,header='true',schema = schema)
         self.zipcodes = self.zipcodes.select('ZCTA', 'LandSqMt', 'Latitude','Longitude')
 
