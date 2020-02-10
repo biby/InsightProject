@@ -25,7 +25,6 @@ class ImageProcessor:
             self.tpe = ThreadPoolExecutor(nbThread)
             self.futures = []
         self.zipsearch = zipsearch
-        self.s3 = boto3.client('s3')
 
     def getImage(self,s3Bucket,url):
         """
