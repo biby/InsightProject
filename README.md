@@ -12,7 +12,7 @@ Solar Insight
 <h1>
 Design.
 </h1>
-![alt text](/pipeline.png)
+![Pipeline](pipeline.png)
 <p>The historical data has been processed using Apache Spark. Satellite images are downloaded from a S3 database, matched to zipcode. For each zipcode-image pair, the cloud coverage over the location is extracted and then stored in a MySQL database. A web app implemented with Plotly Dash is then queriing this database to compute the electricity production.</p>
 
 <p>The realtime data is first received by Apache Pulsar, and then fetched and processed similarly as for the historical data pipeline.</p>
