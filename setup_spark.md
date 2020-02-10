@@ -64,3 +64,38 @@ ssh-keygen -t rsa -P ""
 sbin/start-all.sh
 ```
 
+
+<h1> Configure a virtual environement for spark </h1>
+
+I followed <a href="https://community.cloudera.com/t5/Community-Articles/Using-VirtualEnv-with-PySpark/ta-p/245905">this tutorial</a>
+
+Install virtualenv:
+```bash
+sudo apt-get install virtualenv
+```
+Create a virtual environement with python3
+```bash
+virtualenv sparkenv -p /usr/local/bin/python3
+```
+
+Activate it, install the required libraries, and save the requirements in  requirements.txt file 
+```bash
+source sparkenv/bin/activate  # activate virtualenv
+pip install numpy pillow boto3
+pip freeze > requirements.txt
+```
+
+You should obtain a file similar to <a href="/src/spark/requirements.txt">this one</a>
+
+<h1>Set up the spark configuration file</h1>
+<p>Copy the <a href="/src/spark/spark-defaults.conf">spark-defaults.conf</a> file to /usr/local/spark/conf.</p>
+<p>This file contains the java packages for using s3 as well as the <a href="https://github.com/streamnative/pulsar-spark">pyspark-pulsar connector</a>. It also defines spark master's IP and port to be 10.0.0.10:7077, and allocates 6g of memory per executor</p>
+
+
+<p>You can start spark with the following command:</p>
+```bash
+spark-submit --master spark://10.0.0.10:7077 --conf spark.pyspark.virtualenv.enabled=true  --conf spark.pyspark.virtualenv.type=native --conf spark.pyspark.virtualenv.requirements=/PATH/TO/REQUIREMENTS/requirements.txt --conf spark.pyspark.virtualenv.bin.path=/PATH/TO/BIN/VIRTUALENV/FOLDER/ --conf spark.pyspark.python=/PATH/TU/PYTHON3/python3 ./src/spark/SolarInsight.py
+```
+
+
+
