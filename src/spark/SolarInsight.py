@@ -1,21 +1,21 @@
-    from pyspark import SparkContext, SparkConf,SQLContext
-    import pyspark
-    from zipcode import zipCode,zipCodeTree
-    import time
-    import os
-    import boto3
-    import PIL
-    from PIL import Image
-    import tempfile
-    import numpy as np
-    from itertools import islice
-    from satelliteImage import satelliteImage
-    from SparktomySQL import MySQLConnector
-    from imageProcessor import ImageProcessor
-    import pyspark.sql.functions
-    from solarPanels import SolarPanels
-    from pyspark.sql import Row
-    from pyspark.sql.types import StructType, StructField, IntegerType, FloatType, StringType, TimestampType, LongType
+from pyspark import SparkContext, SparkConf,SQLContext
+import pyspark
+from zipcode import zipCode,zipCodeTree
+import time
+import os
+import boto3
+import PIL
+from PIL import Image
+import tempfile
+import numpy as np
+from itertools import islice
+from satelliteImage import satelliteImage
+from SparktomySQL import MySQLConnector
+from imageProcessor import ImageProcessor
+import pyspark.sql.functions
+from solarPanels import SolarPanels
+from pyspark.sql import Row
+from pyspark.sql.types import StructType, StructField, IntegerType, FloatType, StringType, TimestampType, LongType
 
 
 
@@ -26,6 +26,7 @@ def fetchzipcodes():
 
 
 def processBatchEncloser(data):
+    global nbThread
     imageProcessor = ImageProcessor(zipsearch,nbThread)
     return imageProcessor.processBatch(data)
 
