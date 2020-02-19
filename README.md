@@ -1,5 +1,3 @@
-# InsightProject
-Data Engineering Insight Project
 <h1>
 Solar Insight
 </h1>
