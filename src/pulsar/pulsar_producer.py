@@ -16,15 +16,15 @@ def get_data(dataframe,index=None):
     dflen = len(dataframe)
     if index==None or index <0 or index >= dflen:
         index = randint(0,dflen)
-    nowString = datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S.%f')
-    row = dataframe.iloc[index]
+    nowString = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+    row = dataframe.iloc[index].copy()
     row['acquisitionDate']=nowString
     row['productId']= 'FAKE'+row['productId']
     row['entityId']= 'FAKE'+row['entityId']
-    row['min_lat'] =-123.181725
-    row['min_long'] = 36.452961
-    row['max_lat'] = -121.181725
-    row['max_long'] = 38.452961
+    row['min_lat'] =36.452961
+    row['min_long'] = -123.181725
+    row['max_lat'] = 38.452961
+    row['max_long'] = -121.181725
     return row.to_json()
         
 
