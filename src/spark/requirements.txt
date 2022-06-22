@@ -2,7 +2,7 @@ boto3==1.11.9
 botocore==1.14.9
 docutils==0.15.2
 jmespath==0.9.4
-numpy==1.18.1
+numpy==1.22.0
 Pillow==7.0.0
 pkg-resources==0.0.0
 python-dateutil==2.8.1
